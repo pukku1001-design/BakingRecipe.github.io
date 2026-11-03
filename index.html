@@ -3,709 +3,284 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>달콤한 오븐 - 베이킹 레시피 아카이브</title>
+    <title>나만의 베이킹 레시피 아카이브</title>
     <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        bakery: {
-                            50: '#fcfbf7',
-                            100: '#f5f2e8',
-                            200: '#e8e1cd',
-                            300: '#d7cbab',
-                            400: '#c4b183',
-                            500: '#a7905b',
-                            600: '#8c7348',
-                            700: '#6f5939',
-                            800: '#56442d',
-                            900: '#403322',
-                        },
-                        cream: '#fffdf9',
-                        warmpeach: '#fef3e2',
-                        softbrown: '#8B5A2B',
-                    }
-                }
-            }
-        }
-    </script>
-    <!-- Google Fonts: Noto Sans KR -->
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <!-- FontAwesome for cute icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: 'Noto Sans KR', sans-serif;
-            background-color: #fcfbf7;
-            color: #403322;
-        }
-        /* Custom scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #f5f2e8;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #d7cbab;
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #c4b183;
-        }
+        body { font-family: 'Pretendard', sans-serif; background-color: #fcfbf7; color: #4a403a; }
     </style>
 </head>
-<body class="min-h-screen flex flex-col justify-between selection:bg-amber-200 selection:text-amber-900">
+<body class="min-h-screen pb-16">
 
     <!-- Header -->
-    <header class="bg-white/80 backdrop-blur-md sticky top-0 z-40 border-b border-bakery-200 shadow-sm">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-            <div class="flex items-center space-x-3 cursor-pointer" onclick="resetFilters()">
-                <div class="w-12 h-12 bg-warmpeach rounded-full flex items-center justify-center text-softbrown shadow-inner">
-                    <i class="fa-solid fa-cake-candles text-2xl"></i>
-                </div>
-                <div>
-                    <h1 class="text-2xl font-bold tracking-tight text-softbrown">달콤한 오븐</h1>
-                    <p class="text-xs text-bakery-600">나만의 따뜻한 베이킹 레시피 노트</p>
-                </div>
-            </div>
-
-            <div class="flex items-center space-x-3">
-                <!-- Search Input -->
-                <div class="hidden sm:flex items-center bg-bakery-50 border border-bakery-200 rounded-full px-4 py-2 w-64 focus-within:ring-2 focus-within:ring-bakery-400 focus-within:bg-white transition-all">
-                    <i class="fa-solid fa-magnifying-glass text-bakery-400 mr-2"></i>
-                    <input type="text" id="searchInput" placeholder="레시피 제목 또는 재료 검색..." class="bg-transparent text-sm w-full outline-none text-bakery-900 placeholder-bakery-400" oninput="handleSearch()">
-                </div>
-
-                <!-- Add Recipe Button -->
-                <button onclick="openModal('add')" class="bg-softbrown hover:bg-bakery-800 text-white font-medium px-5 py-2.5 rounded-full shadow-md hover:shadow-lg transition-all flex items-center space-x-2 text-sm transform hover:-translate-y-0.5">
-                    <i class="fa-solid fa-plus"></i>
-                    <span>새 레시피 등록</span>
-                </button>
-            </div>
-        </div>
-        <!-- Mobile Search Bar -->
-        <div class="sm:hidden px-4 pb-3">
-            <div class="flex items-center bg-bakery-50 border border-bakery-200 rounded-full px-4 py-2 w-full">
-                <i class="fa-solid fa-magnifying-glass text-bakery-400 mr-2"></i>
-                <input type="text" id="mobileSearchInput" placeholder="레시피 제목 또는 재료 검색..." class="bg-transparent text-sm w-full outline-none text-bakery-900 placeholder-bakery-400" oninput="handleSearch()">
-            </div>
+    <header class="bg-amber-50 border-b border-amber-100 py-6 px-4 shadow-sm">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <h1 class="text-2xl md:text-3xl font-bold text-amber-900 tracking-tight">🥖 나의 베이킹 레시피 노트</h1>
+            <button onclick="openModal()" class="bg-amber-700 hover:bg-amber-800 text-white px-4 py-2 rounded-xl font-medium shadow transition text-sm md:text-base">
+                + 새 레시피 올리기
+            </button>
         </div>
     </header>
 
-    <!-- Main Content Area -->
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow w-full">
-        
-        <!-- Category Filter Tabs -->
-        <div class="flex items-center space-x-2 overflow-x-auto pb-4 mb-6 no-scrollbar">
-            <button onclick="filterCategory('전체')" id="cat-전체" class="category-btn px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap bg-softbrown text-white shadow-sm transition-all">전체보기</button>
-            <button onclick="filterCategory('케이크')" id="cat-케이크" class="category-btn px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap bg-white border border-bakery-200 text-bakery-700 hover:bg-bakery-100 transition-all">케이크</button>
-            <button onclick="filterCategory('쿠키')" id="cat-쿠키" class="category-btn px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap bg-white border border-bakery-200 text-bakery-700 hover:bg-bakery-100 transition-all">쿠키 & 스콘</button>
-            <button onclick="filterCategory('빵')" id="cat-빵" class="category-btn px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap bg-white border border-bakery-200 text-bakery-700 hover:bg-bakery-100 transition-all">식빵 & 빵</button>
-            <button onclick="filterCategory('타르트/파이')" id="cat-타르트/파이" class="category-btn px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap bg-white border border-bakery-200 text-bakery-700 hover:bg-bakery-100 transition-all">타르트 & 파이</button>
-            <button onclick="filterCategory('기타')" id="cat-기타" class="category-btn px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap bg-white border border-bakery-200 text-bakery-700 hover:bg-bakery-100 transition-all">기타 디저트</button>
+    <!-- Main Container -->
+    <main class="max-w-6xl mx-auto px-4 mt-8">
+        <!-- 3x6 Grid (18 items per page) -->
+        <div id="recipe-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+            <!-- 레시피 카드가 동적으로 여기에 들어갑니다 -->
         </div>
 
-        <!-- Recipe Count Info -->
-        <div class="flex justify-between items-center mb-4 text-sm text-bakery-600 px-1">
-            <span id="recipeCountText">총 0개의 레시피</span>
-            <span id="pageInfoText">페이지 1 / 1</span>
-        </div>
-
-        <!-- Recipe Grid (3 columns x 6 rows = 18 items max per page) -->
-        <div id="recipeGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 min-h-[400px]">
-            <!-- Dynamic Recipe Cards will be inserted here -->
-        </div>
-
-        <!-- Empty State -->
-        <div id="emptyState" class="hidden flex-col items-center justify-center py-20 bg-white rounded-3xl border border-bakery-200 shadow-sm text-center px-4 my-6">
-            <div class="w-20 h-20 bg-warmpeach rounded-full flex items-center justify-center text-softbrown text-3xl mb-4 shadow-inner">
-                <i class="fa-solid fa-cookie-bite"></i>
-            </div>
-            <h3 class="text-xl font-bold text-softbrown mb-2">등록된 레시피가 없어요</h3>
-            <p class="text-bakery-600 text-sm max-w-sm mb-6">나만의 소중한 베이킹 레시피를 기록하고 달콤한 오븐을 채워보세요!</p>
-            <button onclick="openModal('add')" class="bg-softbrown hover:bg-bakery-800 text-white font-medium px-6 py-2.5 rounded-full shadow transition-all text-sm">
-                첫 레시피 등록하기
-            </button>
-        </div>
-
-        <!-- Pagination Controls -->
-        <div id="paginationContainer" class="flex justify-center items-center space-x-2 mt-10">
-            <!-- Dynamic Pagination Buttons -->
-        </div>
-
+        <!-- Pagination -->
+        <div id="pagination" class="flex justify-center items-center gap-2 mt-10"></div>
     </main>
 
-    <!-- Footer -->
-    <footer class="bg-white border-t border-bakery-200 py-6 text-center text-xs text-bakery-600 mt-12">
-        <p>Sweet Oven Recipe Archive &copy; 2026. 따뜻한 베이킹의 모든 순간.</p>
-    </footer>
-
-    <!-- Recipe Add / Edit Modal -->
-    <div id="recipeModal" class="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm hidden flex items-center justify-center p-4 overflow-y-auto">
-        <div class="bg-white rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col overflow-hidden border border-bakery-200 transform transition-all">
-            <!-- Modal Header -->
-            <div class="px-6 py-4 bg-warmpeach border-b border-bakery-200 flex justify-between items-center">
-                <h3 id="modalTitle" class="text-lg font-bold text-softbrown flex items-center space-x-2">
-                    <i class="fa-solid fa-book-open"></i>
-                    <span>새 레시피 등록</span>
-                </h3>
-                <button onclick="closeModal()" class="w-8 h-8 rounded-full flex items-center justify-center text-bakery-700 hover:bg-bakery-200/60 transition-colors">
-                    <i class="fa-solid fa-xmark text-lg"></i>
-                </button>
-            </div>
-
-            <!-- Modal Form Body -->
-            <div class="p-6 overflow-y-auto flex-grow space-y-5">
-                <form id="recipeForm" onsubmit="saveRecipe(event)" class="space-y-5">
-                    <input type="hidden" id="recipeId">
-
-                    <!-- Title & Category -->
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                        <div class="sm:col-span-2">
-                            <label class="block text-xs font-bold text-bakery-700 mb-1.5 uppercase tracking-wider">레시피 제목 <span class="text-amber-600">*</span></label>
-                            <input type="text" id="title" required placeholder="예: 촉촉한 바스크 치즈 케이크" class="w-full bg-bakery-50 border border-bakery-200 rounded-xl px-4 py-2.5 text-sm text-bakery-900 outline-none focus:ring-2 focus:ring-bakery-400 focus:bg-white transition-all">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-bakery-700 mb-1.5 uppercase tracking-wider">카테고리</label>
-                            <select id="category" class="w-full bg-bakery-50 border border-bakery-200 rounded-xl px-4 py-2.5 text-sm text-bakery-900 outline-none focus:ring-2 focus:ring-bakery-400 focus:bg-white transition-all">
-                                <option value="케이크">케이크</option>
-                                <option value="쿠키">쿠키 & 스콘</option>
-                                <option value="빵">식빵 & 빵</option>
-                                <option value="타르트/파이">타르트 & 파이</option>
-                                <option value="기타">기타 디저트</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <!-- Baking Temp & Time -->
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-xs font-bold text-bakery-700 mb-1.5 uppercase tracking-wider">굽기 온도</label>
-                            <input type="text" id="bakingTemp" placeholder="예: 180℃" class="w-full bg-bakery-50 border border-bakery-200 rounded-xl px-4 py-2.5 text-sm text-bakery-900 outline-none focus:ring-2 focus:ring-bakery-400 focus:bg-white transition-all">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-bakery-700 mb-1.5 uppercase tracking-wider">굽기 시간</label>
-                            <input type="text" id="bakingTime" placeholder="예: 35분" class="w-full bg-bakery-50 border border-bakery-200 rounded-xl px-4 py-2.5 text-sm text-bakery-900 outline-none focus:ring-2 focus:ring-bakery-400 focus:bg-white transition-all">
-                        </div>
-                    </div>
-
-                    <!-- Photo Attachment (File Upload & URL) -->
-                    <div>
-                        <label class="block text-xs font-bold text-bakery-700 mb-1.5 uppercase tracking-wider">사진 첨부 (파일 또는 URL)</label>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
-                            <div>
-                                <label class="block text-[11px] text-bakery-600 mb-1">로컬 파일 업로드</label>
-                                <input type="file" id="imageFile" accept="image/*" onchange="handleImageFile(event)" class="w-full text-xs text-bakery-700 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-warmpeach file:text-softbrown hover:file:bg-amber-100 cursor-pointer">
-                            </div>
-                            <div>
-                                <label class="block text-[11px] text-bakery-600 mb-1">또는 이미지 URL 입력</label>
-                                <input type="url" id="imageUrl" placeholder="https://example.com/image.jpg" oninput="handleImageUrlInput()" class="w-full bg-bakery-50 border border-bakery-200 rounded-xl px-3 py-2 text-sm text-bakery-900 outline-none focus:ring-2 focus:ring-bakery-400 focus:bg-white transition-all">
-                            </div>
-                        </div>
-                        <!-- Hidden storage for final image data -->
-                        <input type="hidden" id="imageData">
-                        <!-- Image Preview Box -->
-                        <div class="relative w-full h-40 bg-bakery-50 border-2 border-dashed border-bakery-300 rounded-2xl flex items-center justify-center overflow-hidden">
-                            <img id="imagePreview" src="" alt="미리보기" class="hidden w-full h-full object-cover">
-                            <div id="imagePlaceholder" class="flex flex-col items-center justify-center text-bakery-400 text-xs space-y-1">
-                                <i class="fa-regular fa-image text-2xl"></i>
-                                <span>사진을 첨부하면 여기에 미리보기가 표시됩니다</span>
-                            </div>
-                            <button type="button" id="removeImageBtn" onclick="clearImage()" class="hidden absolute top-2 right-2 bg-black/60 text-white rounded-full w-7 h-7 flex items-center justify-center text-xs hover:bg-black transition-colors" title="사진 삭제">
-                                <i class="fa-solid fa-xmark"></i>
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Ingredients -->
-                    <div>
-                        <label class="block text-xs font-bold text-bakery-700 mb-1.5 uppercase tracking-wider">재료 목록 <span class="text-amber-600">*</span></label>
-                        <textarea id="ingredients" required rows="3" placeholder="예: 크림치즈 200g, 설탕 60g, 달걀 2개, 생크림 100g (줄바꿈으로 구분)" class="w-full bg-bakery-50 border border-bakery-200 rounded-xl p-3 text-sm text-bakery-900 outline-none focus:ring-2 focus:ring-bakery-400 focus:bg-white transition-all resize-none"></textarea>
-                    </div>
-
-                    <!-- Instructions -->
-                    <div>
-                        <label class="block text-xs font-bold text-bakery-700 mb-1.5 uppercase tracking-wider">만드는 법 (레시피 설명) <span class="text-amber-600">*</span></label>
-                        <textarea id="instructions" required rows="4" placeholder="1. 크림치즈를 부드럽게 풀어줍니다.&#10;2. 설탕을 나누어 넣으며 섞습니다.&#10;3. 달걀을 하나씩 넣어가며 섞어주세요." class="w-full bg-bakery-50 border border-bakery-200 rounded-xl p-3 text-sm text-bakery-900 outline-none focus:ring-2 focus:ring-bakery-400 focus:bg-white transition-all"></textarea>
-                    </div>
-
-                    <!-- Modal Actions -->
-                    <div class="flex justify-end space-x-3 pt-3 border-t border-bakery-200">
-                        <button type="button" onclick="closeModal()" class="px-5 py-2.5 rounded-xl border border-bakery-200 text-bakery-700 font-medium text-sm hover:bg-bakery-100 transition-colors">취소</button>
-                        <button type="submit" class="px-6 py-2.5 rounded-xl bg-softbrown text-white font-medium text-sm hover:bg-bakery-800 shadow transition-colors">저장하기</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- Recipe Detail Modal -->
-    <div id="detailModal" class="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm hidden flex items-center justify-center p-4 overflow-y-auto">
-        <div class="bg-white rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col overflow-hidden border border-bakery-200 transform transition-all">
-            <div id="detailContent" class="overflow-y-auto p-6 space-y-6">
-                <!-- Dynamic Detail Content -->
-            </div>
-            <div class="px-6 py-4 bg-bakery-50 border-t border-bakery-200 flex justify-between items-center">
-                <div id="detailActionButtons" class="flex space-x-2">
-                    <!-- Edit & Delete buttons will be injected here -->
+    <!-- Modal (레시피 작성/수정) -->
+    <div id="recipe-modal" class="fixed inset-0 bg-black/40 backdrop-blur-xs hidden justify-center items-center p-4 z-50">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-xl max-h-[90vh] overflow-y-auto">
+            <h2 id="modal-title" class="text-xl font-bold text-amber-900 mb-4">새 레시피 등록</h2>
+            <form id="recipe-form" onsubmit="saveRecipeData(event)" class="space-y-4">
+                <input type="hidden" id="recipe-id">
+                <div>
+                    <label class="block text-sm font-medium text-amber-900 mb-1">레시피 제목</label>
+                    <input type="text" id="title" required class="w-full px-3 py-2 border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none">
                 </div>
-                <button onclick="closeDetailModal()" class="px-5 py-2 rounded-xl bg-bakery-200 text-bakery-800 font-medium text-sm hover:bg-bakery-300 transition-colors">닫기</button>
-            </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-amber-900 mb-1">카테고리</label>
+                        <select id="category" class="w-full px-3 py-2 border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none">
+                            <option value="쿠키/스콘">쿠키/스콘</option>
+                            <option value="케이크/파운드">케이크/파운드</option>
+                            <option value="발효빵/사워도우">발효빵/사워도우</option>
+                            <option value="구움과자">구움과자</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-amber-900 mb-1">굽기 온도 및 시간</label>
+                        <input type="text" id="baking-info" placeholder="예: 180도 20분" class="w-full px-3 py-2 border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-amber-900 mb-1">완성 사진 첨부</label>
+                    <input type="file" id="image-file" accept="image/*" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-amber-900 mb-1">재료</label>
+                    <textarea id="ingredients" rows="3" placeholder="예: 강력분 300g, 설탕 30g..." class="w-full px-3 py-2 border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none"></textarea>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-amber-900 mb-1">만드는 법</label>
+                    <textarea id="instructions" rows="4" placeholder="조리 순서를 적어주세요..." class="w-full px-3 py-2 border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none"></textarea>
+                </div>
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button" onclick="closeModal()" class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-xl font-medium">취소</button>
+                    <button type="submit" class="bg-amber-700 hover:bg-amber-800 text-white px-5 py-2 rounded-xl font-medium shadow">저장하기</button>
+                </div>
+            </form>
         </div>
     </div>
 
-    <!-- Custom Toast Notification -->
-    <div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300 bg-softbrown text-white px-5 py-3 rounded-2xl shadow-xl flex items-center space-x-3 text-sm">
-        <i id="toastIcon" class="fa-solid fa-circle-check text-warmpeach text-lg"></i>
-        <span id="toastMessage">성공적으로 처리되었습니다!</span>
-    </div>
+    <!-- Firebase SDK & App Logic -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-    <script>
-        // State Management
-        let recipes = JSON.parse(localStorage.getItem('baking_recipes')) || [];
+        // 🔥 본인의 Firebase 설정값으로 교체하세요!
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        const ADMIN_PASSWORD = "12181218"; // 🔒 원하시는 관리자 비밀번호로 변경하세요!
+
+        let recipes = [];
         let currentPage = 1;
-        const itemsPerPage = 18; // 3 columns * 6 rows = 18 items
-        let currentCategory = '전체';
-        let searchQuery = '';
+        const itemsPerPage = 18; // 3 * 6 그리드
 
-        // Default Sample Data if empty
-        if (recipes.length === 0) {
-            recipes = [
-                {
-                    id: '1',
-                    title: '바스크 치즈 케이크',
-                    category: '케이크',
-                    bakingTemp: '210℃',
-                    bakingTime: '30분',
-                    imageData: 'https://placehold.co/600x400/fef3e2/8B5A2B?text=Basque+Cheesecake',
-                    ingredients: '크림치즈 400g, 설탕 100g, 달걀 3개, 생크림 200g, 박력분 10g',
-                    instructions: '1. 크림치즈를 부드럽게 풀고 설탕을 넣어 섞습니다.\n2. 달걀을 하나씩 넣어가며 휘핑합니다.\n3. 생크림과 박력분을 체쳐 넣고 섞습니다.\n4. 유산지를깐 팬에 붓고 210도 오븐에서 30분간 구워줍니다.',
-                    createdAt: new Date().toISOString()
-                },
-                {
-                    id: '2',
-                    title: '초콜릿 칩 쿠키',
-                    category: '쿠키',
-                    bakingTemp: '175℃',
-                    bakingTime: '12분',
-                    imageData: 'https://placehold.co/600x400/fef3e2/8B5A2B?text=Chocolate+Chip+Cookie',
-                    ingredients: '버터 120g, 황설탕 90g, 백설탕 50g, 달걀 1개, 박력분 200g, 초코칩 100g',
-                    instructions: '1. 말랑한 버터에 설탕을 넣고 크림화합니다.\n2. 달걀을 넣어 잘 섞어줍니다.\n3. 박력분과 초코칩을 넣고 가볍게 반죽합니다.\n4. 팬닝 후 175도 오븐에서 12분간 구워줍니다.',
-                    createdAt: new Date(Date.now() - 100000).toISOString()
-                },
-                {
-                    id: '3',
-                    title: '우유 식빵',
-                    category: '빵',
-                    bakingTemp: '180℃',
-                    bakingTime: '25분',
-                    imageData: 'https://placehold.co/600x400/fef3e2/8B5A2B?text=Milk+Bread',
-                    ingredients: '강력분 300g, 우유 190ml, 설탕 25g, 소금 4g, 이스트 4g, 버터 25g',
-                    instructions: '1. 버터를 제외한 모든 재료를 반죽합니다.\n2. 반죽이 매끄러워지면 버터를 넣고 글루텐을 형성합니다.\n3. 1차 발효 50분 -> 분할 및 벤치타임 -> 성형 -> 2차 발효 40분\n4. 180도 오븐에서 25분간 굽습니다.',
-                    createdAt: new Date(Date.now() - 200000).toISOString()
-                }
-            ];
-            saveToLocalStorage();
-        }
-
-        // Initialize App on Load
-        window.addEventListener('DOMContentLoaded', () => {
-            renderRecipes();
-        });
-
-        function saveToLocalStorage() {
-            localStorage.setItem('baking_recipes', JSON.stringify(recipes));
-        }
-
-        // Render Recipes Grid with Pagination and Filters
-        function renderRecipes() {
-            const grid = document.getElementById('recipeGrid');
-            const emptyState = document.getElementById('emptyState');
-            const countText = document.getElementById('recipeCountText');
-            const pageInfoText = document.getElementById('pageInfoText');
-            const paginationContainer = document.getElementById('paginationContainer');
-
-            // Filter logic
-            let filtered = recipes.filter(r => {
-                const matchesCategory = currentCategory === '전체' || r.category === currentCategory;
-                const matchesSearch = r.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                                      r.ingredients.toLowerCase().includes(searchQuery.toLowerCase());
-                return matchesCategory && matchesSearch;
-            });
-
-            // Sort by latest
-            filtered.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-
-            countText.innerText = `총 ${filtered.length}개의 레시피`;
-
-            if (filtered.length === 0) {
-                grid.innerHTML = '';
-                emptyState.classList.remove('hidden');
-                emptyState.classList.add('flex');
-                paginationContainer.innerHTML = '';
-                pageInfoText.innerText = '페이지 0 / 0';
+        window.openModal = function() {
+            const pwd = prompt("관리자 비밀번호를 입력하세요:");
+            if (pwd !== ADMIN_PASSWORD) {
+                if (pwd !== null) alert("비밀번호가 틀렸습니다.");
                 return;
             }
 
-            emptyState.classList.remove('flex');
-            emptyState.classList.add('hidden');
+            document.getElementById('modal-title').innerText = "새 레시피 등록";
+            document.getElementById('recipe-form').reset();
+            document.getElementById('recipe-id').value = '';
+            document.getElementById('recipe-modal').classList.remove('hidden');
+            document.getElementById('recipe-modal').classList.add('flex');
+        }
 
-            // Pagination calculation
-            const totalPages = Math.ceil(filtered.length / itemsPerPage);
-            if (currentPage > totalPages) currentPage = totalPages || 1;
+        window.closeModal = function() {
+            document.getElementById('recipe-modal').classList.remove('flex');
+            document.getElementById('recipe-modal').classList.add('hidden');
+        }
 
-            pageInfoText.innerText = `페이지 ${currentPage} / ${totalPages || 1}`;
+        // 데이터 불러오기 (누구나 조회 가능)
+        async function fetchRecipes() {
+            try {
+                const querySnapshot = await getDocs(collection(db, "recipes"));
+                recipes = [];
+                querySnapshot.forEach((docSnap) => {
+                    recipes.push({ id: docSnap.id, ...docSnap.data() });
+                });
+                renderGrid();
+            } catch (e) {
+                console.error("데이터 로드 실패: ", e);
+            }
+        }
 
-            const start = (currentPage - 1) * itemsPerPage;
-            const end = start + itemsPerPage;
-            const paginatedItems = filtered.slice(start, end);
+        // 레시피 저장 (등록 및 수정)
+        window.saveRecipeData = async function(event) {
+            event.preventDefault();
+            const id = document.getElementById('recipe-id').value;
+            const title = document.getElementById('title').value;
+            const category = document.getElementById('category').value;
+            const bakingInfo = document.getElementById('baking-info').value;
+            const ingredients = document.getElementById('ingredients').value;
+            const instructions = document.getElementById('instructions').value;
+            const fileInput = document.getElementById('image-file');
 
-            // Build Grid HTML
-            let html = '';
-            paginatedItems.forEach(recipe => {
-                const defaultImg = 'https://placehold.co/600x400/f5f2e8/8c7348?text=Sweet+Baking';
-                const imgSrc = recipe.imageData || defaultImg;
-                
-                // Ingredients preview (first few items)
-                const ingredientSnippet = recipe.ingredients.length > 50 ? recipe.ingredients.substring(0, 50) + '...' : recipe.ingredients;
+            let imageUrl = "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=600&auto=format&fit=crop&q=80";
 
-                html += `
-                    <div onclick="openDetailModal('${recipe.id}')" class="bg-white rounded-3xl border border-bakery-200 overflow-hidden shadow-sm hover:shadow-md transition-all cursor-pointer flex flex-col group transform hover:-translate-y-1">
-                        <!-- Image Container -->
-                        <div class="relative h-48 w-full bg-bakery-100 overflow-hidden">
-                            <img src="${imgSrc}" alt="${recipe.title}" onerror="this.src='${defaultImg}'" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
-                            <span class="absolute top-3 left-3 bg-white/90 backdrop-blur-sm text-softbrown text-xs font-semibold px-3 py-1 rounded-full shadow-sm">
-                                ${recipe.category}
-                            </span>
+            if (fileInput.files && fileInput.files[0]) {
+                const reader = new FileReader();
+                reader.onload = async function(uploadEvent) {
+                    imageUrl = uploadEvent.target.result;
+                    await commitToFirestore(id, { title, category, bakingInfo, ingredients, instructions, imageUrl });
+                }
+                reader.readAsDataURL(fileInput.files[0]);
+            } else {
+                if (id) {
+                    const existing = recipes.find(r => r.id === id);
+                    if (existing) imageUrl = existing.imageUrl;
+                }
+                await commitToFirestore(id, { title, category, bakingInfo, ingredients, instructions, imageUrl });
+            }
+        }
+
+        async function commitToFirestore(id, data) {
+            try {
+                if (id) {
+                    await updateDoc(doc(db, "recipes", id), data);
+                } else {
+                    await addDoc(collection(db, "recipes"), data);
+                }
+                closeModal();
+                fetchRecipes();
+            } catch (e) {
+                console.error("저장 실패: ", e);
+                alert("저장 중 오류가 발생했습니다.");
+            }
+        }
+
+        // 화면 렌더링 (3*6 그리드)
+        function renderGrid() {
+            const grid = document.getElementById('recipe-grid');
+            grid.innerHTML = '';
+
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const currentItems = recipes.slice(startIndex, endIndex);
+
+            if (currentItems.length === 0) {
+                grid.innerHTML = `<p class="col-span-full text-center py-12 text-amber-800/60">등록된 레시피가 없습니다. 첫 레시피를 올려보세요!</p>`;
+                document.getElementById('pagination').innerHTML = '';
+                return;
+            }
+
+            currentItems.forEach(recipe => {
+                const card = document.createElement('div');
+                card.className = "bg-white rounded-2xl shadow-sm border border-amber-100 overflow-hidden hover:shadow-md transition flex flex-col";
+                card.innerHTML = `
+                    <div class="h-48 overflow-hidden bg-amber-50">
+                        <img src="${recipe.imageUrl}" alt="${recipe.title}" class="w-full h-full object-cover">
+                    </div>
+                    <div class="p-5 flex-1 flex flex-col justify-between">
+                        <div>
+                            <span class="inline-block px-2.5 py-1 bg-amber-100 text-amber-800 text-xs font-semibold rounded-full mb-2">${recipe.category}</span>
+                            <h3 class="font-bold text-lg text-amber-900 mb-1">${recipe.title}</h3>
+                            <p class="text-xs text-amber-800/70 mb-3">🔥 ${recipe.bakingInfo || '온도/시간 미입력'}</p>
+                            <p class="text-sm text-gray-600 line-clamp-2 mb-4">${recipe.instructions}</p>
                         </div>
-                        <!-- Content Body -->
-                        <div class="p-5 flex flex-col flex-grow justify-between">
-                            <div>
-                                <h3 class="font-bold text-lg text-bakery-900 mb-2 group-hover:text-softbrown transition-colors line-clamp-1">${escapeHtml(recipe.title)}</h3>
-                                <div class="flex items-center space-x-4 text-xs text-bakery-600 mb-3">
-                                    <span><i class="fa-solid fa-temperature-high text-amber-600 mr-1"></i> ${escapeHtml(recipe.bakingTemp || '정보없음')}</span>
-                                    <span><i class="fa-regular fa-clock text-amber-600 mr-1"></i> ${escapeHtml(recipe.bakingTime || '정보없음')}</span>
-                                </div>
-                                <p class="text-xs text-bakery-600 line-clamp-2 bg-bakery-50 p-2.5 rounded-xl border border-bakery-100 mb-4">
-                                    <strong class="text-bakery-700">재료:</strong> ${escapeHtml(ingredientSnippet)}
-                                </p>
-                            </div>
-                            <div class="flex justify-between items-center pt-3 border-t border-bakery-100 text-xs">
-                                <span class="text-bakery-400">${new Date(recipe.createdAt).toLocaleDateString()}</span>
-                                <span class="text-softbrown font-medium group-hover:underline flex items-center space-x-1">
-                                    <span>레시피 보기</span>
-                                    <i class="fa-solid fa-arrow-right text-[10px]"></i>
-                                </span>
-                            </div>
+                        <div class="flex justify-end gap-2 pt-3 border-t border-amber-50">
+                            <button onclick="editRecipe('${recipe.id}')" class="px-3 py-1 text-xs bg-amber-50 hover:bg-amber-100 text-amber-900 rounded-lg font-medium">수정</button>
+                            <button onclick="deleteRecipe('${recipe.id}')" class="px-3 py-1 text-xs bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-lg font-medium">삭제</button>
                         </div>
                     </div>
                 `;
+                grid.appendChild(card);
             });
-            grid.innerHTML = html;
 
-            // Build Pagination HTML
-            let pagHtml = '';
-            if (totalPages > 1) {
-                pagHtml += `<button onclick="changePage(${currentPage - 1})" ${currentPage === 1 ? 'disabled class="opacity-40 cursor-not-allowed"' : ''} class="w-10 h-10 rounded-xl bg-white border border-bakery-200 text-bakery-700 flex items-center justify-center hover:bg-bakery-100 transition-colors"><i class="fa-solid fa-chevron-left"></i></button>`;
-                
-                for (let i = 1; i <= totalPages; i++) {
-                    const activeClass = i === currentPage ? 'bg-softbrown text-white shadow-sm' : 'bg-white border border-bakery-200 text-bakery-700 hover:bg-bakery-100';
-                    pagHtml += `<button onclick="changePage(${i})" class="w-10 h-10 rounded-xl font-medium text-sm flex items-center justify-center transition-all ${activeClass}">${i}</button>`;
-                }
-
-                pagHtml += `<button onclick="changePage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled class="opacity-40 cursor-not-allowed"' : ''} class="w-10 h-10 rounded-xl bg-white border border-bakery-200 text-bakery-700 flex items-center justify-center hover:bg-bakery-100 transition-colors"><i class="fa-solid fa-chevron-right"></i></button>`;
-            }
-            paginationContainer.innerHTML = pagHtml;
+            renderPagination();
         }
 
-        function filterCategory(category) {
-            currentCategory = category;
-            currentPage = 1;
-            
-            // Update Tab styles
-            document.querySelectorAll('.category-btn').forEach(btn => {
-                btn.className = "category-btn px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap bg-white border border-bakery-200 text-bakery-700 hover:bg-bakery-100 transition-all";
-            });
-            const activeBtn = document.getElementById(`cat-${category}`);
-            if (activeBtn) {
-                activeBtn.className = "category-btn px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap bg-softbrown text-white shadow-sm transition-all";
-            }
-            renderRecipes();
-        }
+        // 페이지네이션 렌더링
+        function renderPagination() {
+            const pagination = document.getElementById('pagination');
+            pagination.innerHTML = '';
+            const totalPages = Math.ceil(recipes.length / itemsPerPage);
 
-        function handleSearch() {
-            searchQuery = document.getElementById('searchInput').value || document.getElementById('mobileSearchInput').value;
-            currentPage = 1;
-            renderRecipes();
-        }
+            if (totalPages <= 1) return;
 
-        function resetFilters() {
-            currentCategory = '전체';
-            searchQuery = '';
-            document.getElementById('searchInput').value = '';
-            document.getElementById('mobileSearchInput').value = '';
-            filterCategory('전체');
-        }
-
-        function changePage(page) {
-            currentPage = page;
-            renderRecipes();
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        // Modal Controls
-        function openModal(mode, id = null) {
-            const modal = document.getElementById('recipeModal');
-            const modalTitle = document.getElementById('modalTitle');
-            const form = document.getElementById('recipeForm');
-            
-            form.reset();
-            clearImage();
-            document.getElementById('recipeId').value = '';
-
-            if (mode === 'edit' && id) {
-                modalTitle.innerHTML = `<i class="fa-solid fa-pen-to-square"></i><span>레시피 수정</span>`;
-                const recipe = recipes.find(r => r.id === id);
-                if (recipe) {
-                    document.getElementById('recipeId').value = recipe.id;
-                    document.getElementById('title').value = recipe.title;
-                    document.getElementById('category').value = recipe.category;
-                    document.getElementById('bakingTemp').value = recipe.bakingTemp || '';
-                    document.getElementById('bakingTime').value = recipe.bakingTime || '';
-                    document.getElementById('ingredients').value = recipe.ingredients;
-                    document.getElementById('instructions').value = recipe.instructions;
-                    
-                    if (recipe.imageData) {
-                        document.getElementById('imageUrl').value = recipe.imageData.startsWith('data:') ? '' : recipe.imageData;
-                        setImageData(recipe.imageData);
-                    }
-                }
-            } else {
-                modalTitle.innerHTML = `<i class="fa-solid fa-book-open"></i><span>새 레시피 등록</span>`;
-            }
-
-            modal.classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
-        }
-
-        function closeModal() {
-            document.getElementById('recipeModal').classList.add('hidden');
-            document.body.style.overflow = 'auto';
-        }
-
-        // Image Handling (FileReader & URL)
-        function handleImageFile(event) {
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    setImageData(e.target.result);
-                    document.getElementById('imageUrl').value = ''; // clear url input
-                }
-                reader.readAsDataURL(file);
+            for (let i = 1; i <= totalPages; i++) {
+                const btn = document.createElement('button');
+                btn.innerText = i;
+                btn.className = `px-3.5 py-1.5 rounded-xl font-medium text-sm transition ${currentPage === i ? 'bg-amber-700 text-white shadow' : 'bg-white border border-amber-200 text-amber-900 hover:bg-amber-50'}`;
+                btn.onclick = () => {
+                    currentPage = i;
+                    renderGrid();
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                };
+                pagination.appendChild(btn);
             }
         }
 
-        function handleImageUrlInput() {
-            const url = document.getElementById('imageUrl').value;
-            if (url.trim() !== '') {
-                setImageData(url);
-                document.getElementById('imageFile').value = ''; // clear file input
-            } else {
-                clearImage();
-            }
-        }
-
-        function setImageData(data) {
-            document.getElementById('imageData').value = data;
-            const preview = document.getElementById('imagePreview');
-            const placeholder = document.getElementById('imagePlaceholder');
-            const removeBtn = document.getElementById('removeImageBtn');
-
-            preview.src = data;
-            preview.classList.remove('hidden');
-            placeholder.classList.add('hidden');
-            removeBtn.classList.remove('hidden');
-        }
-
-        function clearImage() {
-            document.getElementById('imageData').value = '';
-            document.getElementById('imageFile').value = '';
-            document.getElementById('imageUrl').value = '';
-            const preview = document.getElementById('imagePreview');
-            const placeholder = document.getElementById('imagePlaceholder');
-            const removeBtn = document.getElementById('removeImageBtn');
-
-            preview.src = '';
-            preview.classList.add('hidden');
-            placeholder.classList.remove('hidden');
-            removeBtn.classList.add('hidden');
-        }
-
-        // Save Recipe (Create or Update)
-        function saveRecipe(event) {
-            event.preventDefault();
-            const id = document.getElementById('recipeId').value;
-            const title = document.getElementById('title').value.trim();
-            const category = document.getElementById('category').value;
-            const bakingTemp = document.getElementById('bakingTemp').value.trim();
-            const bakingTime = document.getElementById('bakingTime').value.trim();
-            const imageData = document.getElementById('imageData').value;
-            const ingredients = document.getElementById('ingredients').value.trim();
-            const instructions = document.getElementById('instructions').value.trim();
-
-            if (!title || !ingredients || !instructions) {
-                showToast('필수 항목을 모두 입력해주세요!', 'error');
+        window.editRecipe = function(id) {
+            const pwd = prompt("관리자 비밀번호를 입력하세요:");
+            if (pwd !== ADMIN_PASSWORD) {
+                if (pwd !== null) alert("비밀번호가 틀렸습니다.");
                 return;
             }
 
-            if (id) {
-                // Update
-                const index = recipes.findIndex(r => r.id === id);
-                if (index !== -1) {
-                    recipes[index] = {
-                        ...recipes[index],
-                        title,
-                        category,
-                        bakingTemp,
-                        bakingTime,
-                        imageData,
-                        ingredients,
-                        instructions
-                    };
-                }
-                showToast('레시피가 성공적으로 수정되었습니다!');
-            } else {
-                // Create
-                const newRecipe = {
-                    id: Date.now().toString(),
-                    title,
-                    category,
-                    bakingTemp,
-                    bakingTime,
-                    imageData,
-                    ingredients,
-                    instructions,
-                    createdAt: new Date().toISOString()
-                };
-                recipes.unshift(newRecipe);
-                showToast('새 레시피가 등록되었습니다!');
-            }
-
-            saveToLocalStorage();
-            closeModal();
-            renderRecipes();
-        }
-
-        // Detail Modal View
-        function openDetailModal(id) {
             const recipe = recipes.find(r => r.id === id);
             if (!recipe) return;
-
-            const detailModal = document.getElementById('detailModal');
-            const detailContent = document.getElementById('detailContent');
-            const detailActionButtons = document.getElementById('detailActionButtons');
-            const defaultImg = 'https://placehold.co/600x400/f5f2e8/8c7348?text=Sweet+Baking';
-            const imgSrc = recipe.imageData || defaultImg;
-
-            // Format Ingredients and Instructions with line breaks
-            const formattedIngredients = escapeHtml(recipe.ingredients).replace(/\n/g, '<br>');
-            const formattedInstructions = escapeHtml(recipe.instructions).replace(/\n/g, '<br>');
-
-            detailContent.innerHTML = `
-                <div class="relative h-64 w-full rounded-2xl overflow-hidden bg-bakery-100 shadow-inner mb-6">
-                    <img src="${imgSrc}" alt="${recipe.title}" onerror="this.src='${defaultImg}'" class="w-full h-full object-cover">
-                    <span class="absolute top-4 left-4 bg-white/90 backdrop-blur-sm text-softbrown text-xs font-bold px-3.5 py-1.5 rounded-full shadow">
-                        ${recipe.category}
-                    </span>
-                </div>
-                
-                <h2 class="text-2xl font-bold text-bakery-900 mb-2">${escapeHtml(recipe.title)}</h2>
-                <div class="flex items-center space-x-6 text-sm text-bakery-700 bg-warmpeach/60 p-3 rounded-2xl mb-6 border border-warmpeach">
-                    <div><i class="fa-solid fa-temperature-high text-amber-600 mr-2"></i><strong>굽기 온도:</strong> ${escapeHtml(recipe.bakingTemp || '정보 없음')}</div>
-                    <div><i class="fa-regular fa-clock text-amber-600 mr-2"></i><strong>굽기 시간:</strong> ${escapeHtml(recipe.bakingTime || '정보 없음')}</div>
-                </div>
-
-                <div class="space-y-6">
-                    <div class="bg-bakery-50 p-5 rounded-2xl border border-bakery-100">
-                        <h4 class="font-bold text-softbrown mb-2.5 flex items-center space-x-2">
-                            <i class="fa-solid fa-basket-shopping"></i>
-                            <span>필수 재료</span>
-                        </h4>
-                        <p class="text-sm text-bakery-800 leading-relaxed">${formattedIngredients}</p>
-                    </div>
-
-                    <div class="bg-bakery-50 p-5 rounded-2xl border border-bakery-100">
-                        <h4 class="font-bold text-softbrown mb-2.5 flex items-center space-x-2">
-                            <i class="fa-solid fa-list-check"></i>
-                            <span>만드는 법</span>
-                        </h4>
-                        <p class="text-sm text-bakery-800 leading-relaxed whitespace-pre-line">${formattedInstructions}</p>
-                    </div>
-                </div>
-            `;
-
-            detailActionButtons.innerHTML = `
-                <button onclick="closeDetailModal(); openModal('edit', '${recipe.id}')" class="px-4 py-2 rounded-xl bg-warmpeach text-softbrown font-medium text-sm hover:bg-amber-200 transition-colors flex items-center space-x-1.5">
-                    <i class="fa-solid fa-pen"></i><span>수정</span>
-                </button>
-                <button onclick="deleteRecipe('${recipe.id}')" class="px-4 py-2 rounded-xl bg-red-50 text-red-600 font-medium text-sm hover:bg-red-100 transition-colors flex items-center space-x-1.5">
-                    <i class="fa-solid fa-trash"></i><span>삭제</span>
-                </button>
-            `;
-
-            detailModal.classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
+            document.getElementById('modal-title').innerText = "레시피 수정";
+            document.getElementById('recipe-id').value = recipe.id;
+            document.getElementById('title').value = recipe.title;
+            document.getElementById('category').value = recipe.category;
+            document.getElementById('baking-info').value = recipe.bakingInfo || '';
+            document.getElementById('ingredients').value = recipe.ingredients || '';
+            document.getElementById('instructions').value = recipe.instructions || '';
+            document.getElementById('recipe-modal').classList.remove('hidden');
+            document.getElementById('recipe-modal').classList.add('flex');
         }
 
-        function closeDetailModal() {
-            document.getElementById('detailModal').classList.add('hidden');
-            document.body.style.overflow = 'auto';
-        }
+        window.deleteRecipe = async function(id) {
+            const pwd = prompt("관리자 비밀번호를 입력하세요:");
+            if (pwd !== ADMIN_PASSWORD) {
+                if (pwd !== null) alert("비밀번호가 틀렸습니다.");
+                return;
+            }
 
-        // Delete Recipe
-        function deleteRecipe(id) {
-            if (confirm('정말 이 레시피를 삭제하시겠어요?')) {
-                recipes = recipes.filter(r => r.id !== id);
-                saveToLocalStorage();
-                closeDetailModal();
-                renderRecipes();
-                showToast('레시피가 삭제되었습니다.');
+            if (confirm("정말 이 레시피를 삭제하시겠습니까?")) {
+                try {
+                    await deleteDoc(doc(db, "recipes", id));
+                    fetchRecipes();
+                } catch (e) {
+                    console.error("삭제 실패: ", e);
+                }
             }
         }
 
-        // Helper: Escape HTML to prevent XSS
-        function escapeHtml(str) {
-            return str
-                .replace(/&/g, "&amp;")
-                .replace(/</g, "&lt;")
-                .replace(/>/g, "&gt;")
-                .replace(/"/g, "&quot;")
-                .replace(/'/g, "&#039;");
-        }
-
-        // Toast Notification
-        function showToast(message, type = 'success') {
-            const toast = document.getElementById('toast');
-            const toastMessage = document.getElementById('toastMessage');
-            const toastIcon = document.getElementById('toastIcon');
-
-            toastMessage.innerText = message;
-            if (type === 'error') {
-                toast.className = "fixed bottom-6 right-6 z-50 transform translate-y-0 opacity-100 transition-all duration-300 bg-red-600 text-white px-5 py-3 rounded-2xl shadow-xl flex items-center space-x-3 text-sm";
-                toastIcon.className = "fa-solid fa-triangle-exclamation text-white text-lg";
-            } else {
-                toast.className = "fixed bottom-6 right-6 z-50 transform translate-y-0 opacity-100 transition-all duration-300 bg-softbrown text-white px-5 py-3 rounded-2xl shadow-xl flex items-center space-x-3 text-sm";
-                toastIcon.className = "fa-solid fa-circle-check text-warmpeach text-lg";
-            }
-
-            setTimeout(() => {
-                toast.className = "fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300 bg-softbrown text-white px-5 py-3 rounded-2xl shadow-xl flex items-center space-x-3 text-sm";
-            }, 3000);
-        }
+        // 최초 실행 시 데이터 불러오기
+        fetchRecipes();
     </script>
 </body>
 </html>
